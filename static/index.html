@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Namu Ledger</title>
+  <meta name="description" content="A private, local dashboard of money in and money out, built from your bank and card statements.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c5cab'/%3E%3Cpath d='M16 26V13M16 18c-4 0-6.5-2.6-6.5-6.5 4 0 6.5 2.6 6.5 6.5zm0-3c3.4 0 5.6-2.3 5.6-5.6-3.4 0-5.6 2.3-5.6 5.6z' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <script>
+    // Apply a saved theme before first paint (no flash). Storage can throw; ignore.
+    try { var t = localStorage.getItem('namu-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to dashboard</a>
+
+  <header class="masthead">
+    <div class="wrap masthead__inner">
+      <div class="brand">
+        <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8"/>
+          <path d="M16 26V13M16 18c-4 0-6.5-2.6-6.5-6.5 4 0 6.5 2.6 6.5 6.5zm0-3c3.4 0 5.6-2.3 5.6-5.6-3.4 0-5.6 2.3-5.6 5.6z"/>
+        </svg>
+        <div>
+          <p class="brand__name">Namu</p>
+          <p class="brand__tagline">A quiet ledger of what came in and what went out.</p>
+        </div>
+      </div>
+      <div class="masthead__actions">
+        <span class="mock-badge" id="mock-badge" hidden>Demo data</span>
+        <button type="button" class="btn btn--primary" id="add-btn" aria-label="Add statements">
+          <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3m0 0L6 7m4-4 4 4M3 13v2.5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>
+          <span>Add statements</span>
+        </button>
+        <button type="button" class="btn btn--icon" id="theme-btn" aria-label="Switch to dark theme">
+          <svg class="icon icon--moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 12.2A7 7 0 0 1 7.8 3.5a7 7 0 1 0 8.7 8.7z"/></svg>
+          <svg class="icon icon--sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.5"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6 16 16M4 16l1.4-1.4M14.6 5.4 16 4"/></svg>
+        </button>
+        <input type="file" id="file-input" accept=".pdf,application/pdf" multiple hidden>
+      </div>
+    </div>
+  </header>
+
+  <nav class="filterbar" id="filterbar" aria-label="Dashboard filters" hidden>
+    <div class="wrap filterbar__inner">
+      <div class="filter-group" role="group" aria-labelledby="period-label">
+        <span class="filter-label" id="period-label">Period</span>
+        <div class="chips" id="period-chips"></div>
+      </div>
+      <span class="filterbar__divider" aria-hidden="true"></span>
+      <div class="filter-group" role="group" aria-labelledby="acct-label">
+        <span class="filter-label" id="acct-label">Accounts</span>
+        <div class="chips" id="account-chips"></div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <section id="upload-results" class="upload-results" aria-live="polite" hidden></section>
+
+    <div id="state-msg" class="state-msg" role="status">
+      <p class="state-msg__title">Opening your ledger…</p>
+    </div>
+
+    <section id="empty" class="empty" hidden aria-labelledby="empty-title"></section>
+
+    <div id="dashboard" class="dashboard" hidden>
+      <section class="kpis" id="kpis" aria-label="Summary for the selected period"></section>
+
+      <div class="grid grid--flow">
+        <section class="card" id="card-cashflow" aria-labelledby="cashflow-title">
+          <header class="card__head">
+            <div>
+              <h2 class="card__title" id="cashflow-title">Monthly cash flow</h2>
+              <p class="card__sub" id="cashflow-sub">Above the line: money in plus money taken out of savings (hatched); below: spending plus money put into savings; the dot is what was left in checking.</p>
+            </div>
+            <div class="card__tools" data-tools="cashflow"></div>
+          </header>
+          <div class="chart" id="chart-cashflow"></div>
+        </section>
+
+        <section class="card" id="card-insights" aria-labelledby="insights-title">
+          <header class="card__head">
+            <div>
+              <h2 class="card__title" id="insights-title">Worth noticing</h2>
+              <p class="card__sub">Plain observations from the numbers below.</p>
+            </div>
+          </header>
+          <ol class="insights" id="insights"></ol>
+        </section>
+      </div>
+
+      <section class="card" id="card-compare" aria-labelledby="compare-title">
+        <header class="card__head">
+          <div>
+            <h2 class="card__title" id="compare-title">Compared with last month</h2>
+            <p class="card__sub" id="compare-sub">Month against month.</p>
+          </div>
+          <div class="card__tools">
+            <div data-compare-nav></div>
+            <div data-tools="compare"></div>
+          </div>
+        </header>
+        <div id="compare"></div>
+        <div class="cmp-detail" id="compare-detail" hidden>
+          <div class="cmp-cats">
+            <h3 class="subhead">By category</h3>
+            <p class="card__sub">Largest changes first. Select one to list both months’ transactions.</p>
+            <div class="chart" id="chart-compare"></div>
+          </div>
+          <div class="cmp-merch">
+            <h3 class="subhead">Biggest merchant changes</h3>
+            <ul class="cmp-merch__list" id="compare-merch"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="card-sankey" aria-labelledby="sankey-title">
+        <header class="card__head">
+          <div>
+            <h2 class="card__title" id="sankey-title">Where the money went</h2>
+            <p class="card__sub" id="sankey-sub">From each source of income, through the month, to what it paid for.</p>
+          </div>
+          <div class="card__tools" data-tools="sankey"></div>
+        </header>
+        <div class="chart" id="chart-sankey"></div>
+      </section>
+
+      <div class="grid grid--2">
+        <div class="stack">
+          <section class="card" id="card-categories" aria-labelledby="cat-title">
+            <header class="card__head">
+              <div>
+                <h2 class="card__title" id="cat-title">Spending by category</h2>
+                <p class="card__sub">Net of refunds. Select a category to see its transactions.</p>
+              </div>
+              <div class="card__tools" data-tools="categories"></div>
+            </header>
+            <div class="chart" id="chart-categories"></div>
+          </section>
+
+          <section class="card" id="card-calendar" aria-labelledby="cal-title">
+            <header class="card__head">
+              <div>
+                <h2 class="card__title" id="cal-title">Daily spending</h2>
+                <p class="card__sub">Stronger color means more spent. Select a day to list it.</p>
+              </div>
+              <div class="card__tools" data-tools="calendar"></div>
+            </header>
+            <div class="chart" id="chart-calendar"></div>
+          </section>
+        </div>
+        <div class="stack">
+          <section class="card" id="card-merchants" aria-labelledby="merch-title">
+            <header class="card__head">
+              <div>
+                <h2 class="card__title" id="merch-title">Top merchants</h2>
+                <p class="card__sub">Where you spent the most, and how often.</p>
+              </div>
+            </header>
+            <div id="merchants"></div>
+          </section>
+
+          <section class="card" id="card-recurring" aria-labelledby="rec-title">
+            <header class="card__head">
+              <div>
+                <h2 class="card__title" id="rec-title">Recurring &amp; subscriptions</h2>
+                <p class="card__sub" id="rec-sub">Charges that repeat, with what they cost each month.</p>
+              </div>
+            </header>
+            <div id="recurring"></div>
+          </section>
+        </div>
+      </div>
+
+      <section class="card" id="card-accounts" aria-labelledby="acct-title">
+        <header class="card__head">
+          <div>
+            <h2 class="card__title" id="acct-title">Accounts &amp; coverage</h2>
+            <p class="card__sub">Which months each account has statements for. Gaps mean missing uploads.</p>
+          </div>
+        </header>
+        <div id="accounts"></div>
+      </section>
+
+      <section class="card" id="card-statements" aria-labelledby="stmt-title">
+        <header class="card__head">
+          <div>
+            <h2 class="card__title" id="stmt-title">Statements</h2>
+            <p class="card__sub" id="stmt-sub">Every file you have added, and whether its totals check out.</p>
+          </div>
+          <div class="card__tools">
+            <button type="button" class="btn btn--quiet btn--sm" id="reparse-btn" data-focus-key="reparse">Re-read all statements</button>
+          </div>
+        </header>
+        <div id="statements"></div>
+      </section>
+
+      <section class="card card--table" id="card-txns" aria-labelledby="txn-title">
+        <header class="card__head">
+          <div>
+            <h2 class="card__title" id="txn-title">Transactions</h2>
+            <p class="card__sub" id="txn-sub">Change a category and Namu can remember it for that merchant.</p>
+          </div>
+          <div class="card__tools">
+            <button type="button" class="btn btn--quiet btn--sm" id="export-btn">
+              <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4-4-4M3 13v2.5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </header>
+        <div id="txns"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer wrap">
+    <p><strong>Everything stays on this computer.</strong> Namu reads your statements locally; nothing is sent anywhere.</p>
+  </footer>
+
+  <div class="drop-overlay" id="drop-overlay" hidden>
+    <div class="drop-overlay__panel">
+      <svg class="drop-overlay__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 31V9m0 0-8 8m8-8 8 8M8 30v6a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4v-6"/></svg>
+      <p class="drop-overlay__title">Drop to add statements</p>
+      <p class="drop-overlay__sub">PDF statements from Chase, American Express and Citi. Everything stays on this computer.</p>
+    </div>
+  </div>
+
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+
+  <script src="js/util.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/model.js" defer></script>
+  <script src="js/charts.js" defer></script>
+  <script src="js/sections.js" defer></script>
+  <script src="js/table.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>

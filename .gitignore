@@ -1,0 +1,11 @@
+.venv/
+data/
+samples/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
+.playwright-mcp/
+screenshots/
