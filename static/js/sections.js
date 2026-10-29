@@ -1,7 +1,7 @@
-/* Namu — dashboard sections other than the charts and the transactions table. */
+/* Naamu — dashboard sections other than the charts and the transactions table. */
 (function () {
   'use strict';
-  const N = window.Namu;
+  const N = window.Naamu;
   const { h, s, model: M, charts: C } = N;
   const S = (N.sections = {});
 
@@ -384,7 +384,7 @@
       if (open) {
         let body;
         if (!st.checks || !st.checks.length) {
-          body = h('p', { class: 'checks__none', text: 'Read with the generic reader (' + st.parser + '). The statement has no totals Namu knows how to compare, so double-check its transactions.' });
+          body = h('p', { class: 'checks__none', text: 'Read with the generic reader (' + st.parser + '). The statement has no totals Naamu knows how to compare, so double-check its transactions.' });
         } else {
           body = h('table', { class: 'checks' },
             h('thead', null, h('tr', null, h('th', { scope: 'col', text: 'Check' }), h('th', { scope: 'col', class: 'num', text: 'On statement' }),
@@ -414,7 +414,7 @@
       onkeydown: (e) => { if (e.target === zone && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); app.pickFiles(); } } },
       s('svg', { class: 'dropzone__icon', viewBox: '0 0 48 48', 'aria-hidden': 'true' }, s('path', { d: 'M24 31V9m0 0-8 8m8-8 8 8M8 30v6a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4v-6' })),
       h('h1', { class: 'dropzone__title', id: 'empty-title', text: 'Drop your statements here' }),
-      h('p', { class: 'dropzone__body', id: 'empty-body', text: 'Add a month or two of PDF statements from your bank and cards. Namu reads them on this computer and builds your dashboard. You can add more any time.' }),
+      h('p', { class: 'dropzone__body', id: 'empty-body', text: 'Add a month or two of PDF statements from your bank and cards. Naamu reads them on this computer and builds your dashboard. You can add more any time.' }),
       h('button', { type: 'button', class: 'btn btn--primary btn--lg', onclick: () => app.pickFiles() }, N.icon('upload'), 'Choose PDF files'),
       h('ul', { class: 'banks', 'aria-label': 'Supported statements' },
         h('li', null, h('strong', { text: 'Chase' }), h('span', { text: 'Checking, Freedom, Amazon Prime Visa' })),

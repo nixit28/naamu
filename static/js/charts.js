@@ -1,8 +1,8 @@
-/* Namu — hand-built inline SVG charts. Colors come from CSS classes so light and
+/* Naamu — hand-built inline SVG charts. Colors come from CSS classes so light and
    dark are selected in styles.css (validated palettes; see the header there). */
 (function () {
   'use strict';
-  const N = window.Namu;
+  const N = window.Naamu;
   const { h, s } = N;
   const C = (N.charts = {});
 

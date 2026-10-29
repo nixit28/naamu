@@ -1,7 +1,7 @@
-"""SQLite storage for Namu (stdlib sqlite3 only).
+"""SQLite storage for Naamu (stdlib sqlite3 only).
 
-Default location is ``data/namu.db`` next to the package; override with the
-``NAMU_DATA_DIR`` environment variable or by passing explicit paths (tests do).
+Default location is ``data/naamu.db`` next to the package; override with the
+``NAAMU_DATA_DIR`` environment variable or by passing explicit paths (tests do).
 """
 from __future__ import annotations
 
@@ -87,12 +87,12 @@ CREATE TABLE IF NOT EXISTS overrides (
 
 
 def default_data_dir() -> Path:
-    env = os.environ.get("NAMU_DATA_DIR")
+    env = os.environ.get("NAAMU_DATA_DIR")
     return Path(env).expanduser().resolve() if env else ROOT / "data"
 
 
 def db_path_for(data_dir: str | Path | None = None) -> Path:
-    return Path(data_dir or default_data_dir()) / "namu.db"
+    return Path(data_dir or default_data_dir()) / "naamu.db"
 
 
 def uploads_dir_for(data_dir: str | Path | None = None) -> Path:

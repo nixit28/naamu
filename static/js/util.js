@@ -1,7 +1,7 @@
-/* Namu — small DOM, formatting, date and tooltip helpers. No dependencies. */
+/* Naamu — small DOM, formatting, date and tooltip helpers. No dependencies. */
 (function () {
   'use strict';
-  const N = (window.Namu = window.Namu || {});
+  const N = (window.Naamu = window.Naamu || {});
   const SVGNS = 'http://www.w3.org/2000/svg';
 
   // ---------------------------------------------------------------- DOM

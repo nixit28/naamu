@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from namu.ingest import Library, fingerprint, account_key
-from namu.models import Check, ParsedStatement, ParsedTxn, UnsupportedStatement
+from naamu.ingest import Library, fingerprint, account_key
+from naamu.models import Check, ParsedStatement, ParsedTxn, UnsupportedStatement
 
 
 # --------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ def test_import_and_enrich(lib, fake, tmp_path):
     # original stored under uploads/<sha256>.pdf, DB in the data dir (not the project's)
     uploads = list((tmp_path / "data" / "uploads").glob("*.pdf"))
     assert len(uploads) == 2 and all(len(p.stem) == 64 for p in uploads)
-    assert (tmp_path / "data" / "namu.db").exists()
+    assert (tmp_path / "data" / "naamu.db").exists()
 
     t = txns_by_desc(lib)
     pay_chk = t["American Express ACH Pmt A1234 Web ID: 1234567890"]
@@ -424,7 +424,7 @@ def ingest_samples(data_dir: Path) -> tuple[list[dict], dict, dict]:
 
 @pytest.mark.skipif(not _sample_pdfs(), reason="no sample statements in samples/")
 def test_samples_end_to_end(tmp_path):
-    pytest.importorskip("namu.parsers")
+    pytest.importorskip("naamu.parsers")
     results, data, summary = ingest_samples(tmp_path / "data")
     txns = data["transactions"]
     by_id = {t["id"]: t for t in txns}

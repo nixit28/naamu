@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 
-from namu.models import ParsedStatement, ParsedTxn
+from naamu.models import ParsedStatement, ParsedTxn
 
 from .common import (
     MONEY, add_check, all_lines, indent, md, parse_amount, parse_long_date, split_trailing_amounts,

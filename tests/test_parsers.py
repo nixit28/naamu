@@ -20,9 +20,9 @@ from pathlib import Path
 
 import pytest
 
-from namu.models import SECTIONS, UnsupportedStatement
-from namu.parsers import parse_pages, parse_pdf
-from namu.parsers.common import infer_date, is_card_payment, parse_amount, split_trailing_amounts
+from naamu.models import SECTIONS, UnsupportedStatement
+from naamu.parsers import parse_pages, parse_pdf
+from naamu.parsers.common import infer_date, is_card_payment, parse_amount, split_trailing_amounts
 
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLES = ROOT / "samples"

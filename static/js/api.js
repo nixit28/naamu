@@ -1,9 +1,9 @@
-/* Namu — data access. Real mode talks to the local Flask API (same origin).
+/* Naamu — data access. Real mode talks to the local Flask API (same origin).
    `?mock` loads static/mock-data.json and simulates uploads/edits in memory;
    `?mock&empty` starts with nothing so the first-run state can be tested. */
 (function () {
   'use strict';
-  const N = window.Namu;
+  const N = window.Naamu;
   const params = new URLSearchParams(location.search);
   const MOCK = params.has('mock');
   N.isMock = MOCK;
@@ -140,7 +140,7 @@
         await wait(380);
         const name = f.name;
         if (!/\.pdf$/i.test(name)) {
-          results.push({ filename: name, status: 'error', message: 'Not a PDF. Namu reads PDF statements.' });
+          results.push({ filename: name, status: 'error', message: 'Not a PDF. Naamu reads PDF statements.' });
           continue;
         }
         if (seenFiles.has(name)) {

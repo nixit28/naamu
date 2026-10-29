@@ -5,9 +5,9 @@ from datetime import date
 
 import pytest
 
-from namu import app as app_module
-from namu.app import create_app
-from namu.models import Check, ParsedStatement, ParsedTxn, UnsupportedStatement
+from naamu import app as app_module
+from naamu.app import create_app
+from naamu.models import Check, ParsedStatement, ParsedTxn, UnsupportedStatement
 
 
 def d(s):
@@ -61,7 +61,7 @@ def pdf(tag):
 def client(tmp_path):
     static = tmp_path / "static"
     static.mkdir()
-    (static / "index.html").write_text("<!doctype html><title>Namu</title>dashboard")
+    (static / "index.html").write_text("<!doctype html><title>Naamu</title>dashboard")
     (static / "app.js").write_text("console.log('hi')")
     app = create_app(data_dir=tmp_path / "data", parse=fake_parse, static_dir=static)
     app.config["TESTING"] = True
@@ -82,13 +82,13 @@ def test_static_files(client):
     assert r.status_code == 200 and b"dashboard" in r.data
     assert client.get("/app.js").status_code == 200
     assert client.get("/missing.css").status_code == 404
-    assert client.get("/../namu/app.py").status_code == 404
+    assert client.get("/../naamu/app.py").status_code == 404
 
 
 def test_placeholder_when_dashboard_missing(tmp_path):
     app = create_app(data_dir=tmp_path / "data", parse=fake_parse, static_dir=tmp_path / "none")
     r = app.test_client().get("/")
-    assert r.status_code == 200 and b"Namu" in r.data
+    assert r.status_code == 200 and b"Naamu" in r.data
 
 
 def test_empty_data(client):
@@ -243,7 +243,7 @@ def test_startup_recomputes_existing_db(tmp_path):
     wawa = next(t for t in txns if t["merchant"] == "Wawa")
     first.patch(f"/api/transactions/{wawa['id']}", json={"category": "Groceries"})
     # simulate a DB written by older rules: stale kinds/categories/matches
-    conn = sqlite3.connect(data_dir / "namu.db")
+    conn = sqlite3.connect(data_dir / "naamu.db")
     conn.execute("UPDATE transactions SET kind='expense', category='Other', "
                  "category_source='auto', transfer_match_id=NULL, merchant='stale'")
     conn.commit()
@@ -258,4 +258,4 @@ def test_startup_recomputes_existing_db(tmp_path):
 
 def test_startup_without_db_creates_nothing(tmp_path):
     create_app(data_dir=tmp_path / "data", parse=fake_parse)
-    assert not (tmp_path / "data" / "namu.db").exists()
+    assert not (tmp_path / "data" / "naamu.db").exists()

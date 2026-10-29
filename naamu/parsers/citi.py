@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 
-from namu.models import Check, ParsedStatement, ParsedTxn
+from naamu.models import Check, ParsedStatement, ParsedTxn
 
 from .common import (
     MONEY, MONEY_LOOSE, add_check, all_lines, find, find_amount, indent, is_card_payment, iso,

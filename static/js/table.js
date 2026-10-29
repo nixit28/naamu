@@ -1,8 +1,8 @@
-/* Namu — transactions table: search, filters, sort, pagination, inline category
+/* Naamu — transactions table: search, filters, sort, pagination, inline category
    edits with "apply to merchant", and client-side CSV export. */
 (function () {
   'use strict';
-  const N = window.Namu;
+  const N = window.Naamu;
   const { h, model: M } = N;
   const T = (N.table = {});
   const PAGE = 50;

@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from datetime import date, timedelta
 
-from namu.models import ParsedStatement, ParsedTxn, UnsupportedStatement
+from naamu.models import ParsedStatement, ParsedTxn, UnsupportedStatement
 
 from .common import (
     MONTHS, all_lines, infer_date, is_card_payment, parse_amount, parse_long_date, parse_mdy,

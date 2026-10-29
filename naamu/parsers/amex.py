@@ -13,7 +13,7 @@ from __future__ import annotations
 import re
 from datetime import timedelta
 
-from namu.models import ParsedStatement, ParsedTxn
+from naamu.models import ParsedStatement, ParsedTxn
 
 from .common import (
     MONEY, MONEY_LOOSE, add_check, all_lines, find, find_amount, indent, iso, month_before,

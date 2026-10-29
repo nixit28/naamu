@@ -1,11 +1,11 @@
-"""Unit tests for namu.enrich. Descriptions mimic the shape of real statement lines
+"""Unit tests for naamu.enrich. Descriptions mimic the shape of real statement lines
 (whitespace collapsed, as parsers emit them) but every payee, place, id and amount is
 fictional."""
 from datetime import date
 
 import pytest
 
-from namu.enrich import (
+from naamu.enrich import (
     CATEGORIES, categorize, detect_recurring, kind_for_category, match_transfers,
     merchant_name, title_case,
 )
@@ -170,7 +170,7 @@ def test_payment_section_known_merchant_is_refund():
 
 
 def test_categorize_accepts_objects():
-    from namu.models import ParsedTxn
+    from naamu.models import ParsedTxn
     t = ParsedTxn(date=date(2026, 9, 2), description="& BJS WHOLESALE #0123 ANYTOWN NJ",
                   amount_cents=-10000, section="purchase")
     assert categorize(t) == ("expense", "Groceries")

@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from namu.models import ParsedStatement, UnsupportedStatement
+from naamu.models import ParsedStatement, UnsupportedStatement
 
 from . import amex, chase_bank, chase_card, citi, generic
 from .common import extract_pages

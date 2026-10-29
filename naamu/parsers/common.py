@@ -8,7 +8,7 @@ import re
 from datetime import date, timedelta
 from pathlib import Path
 
-from namu.models import UnsupportedStatement
+from naamu.models import UnsupportedStatement
 
 # --------------------------------------------------------------------------- text
 
@@ -247,7 +247,7 @@ def add_check(checks: list, label: str, expected: int | None, parsed: int,
     Zero/zero checks are skipped unless ``always``; a nonzero parsed sum with no
     printed total becomes a failing check so it can't silently pass.
     """
-    from namu.models import Check
+    from naamu.models import Check
 
     if expected is None:
         if parsed:

@@ -1,7 +1,7 @@
-/* Namu — state, filters, data loading, upload flow and rendering orchestration. */
+/* Naamu — state, filters, data loading, upload flow and rendering orchestration. */
 (function () {
   'use strict';
-  const N = window.Namu;
+  const N = window.Naamu;
   const { h, model: M, charts: C, sections: S, table: T } = N;
 
   if (N.isMock) N.setToday(new Date(2026, 9, 29));
@@ -71,10 +71,10 @@
     el('dashboard').hidden = true;
     el('filterbar').hidden = true;
     box.appendChild(h('div', { class: 'error-card', role: 'alert' },
-      h('p', { class: 'state-msg__title', text: 'Namu couldn’t load your data' }),
+      h('p', { class: 'state-msg__title', text: 'Naamu couldn’t load your data' }),
       h('p', { class: 'state-msg__body', text: N.isMock
         ? 'The demo data file (mock-data.json) didn’t load: ' + err.message
-        : 'The local Namu server didn’t answer. Make sure it’s running on this computer, then try again. (' + err.message + ')' }),
+        : 'The local Naamu server didn’t answer. Make sure it’s running on this computer, then try again. (' + err.message + ')' }),
       h('button', { type: 'button', class: 'btn btn--primary', onclick: () => { N.clear(box).appendChild(h('p', { class: 'state-msg__title', text: 'Opening your ledger…' })); load(true); } }, 'Try again')));
   }
 
@@ -131,7 +131,7 @@
   /** One section failing (odd data from a new statement format) must not blank the page. */
   function safe(id, fn) {
     try { fn(); } catch (err) {
-      console.error('Namu: could not render ' + id, err);
+      console.error('Naamu: could not render ' + id, err);
       const host = el(id);
       if (host) N.clear(host).appendChild(S.emptyBlock('This section couldn’t be drawn', 'Something in the data was unexpected (' + err.message + '). The rest of the page is unaffected.'));
     }
@@ -611,7 +611,7 @@
   // ------------------------------------------------------------ export
   function exportCSV() {
     if (!ctx) return;
-    const name = 'namu-transactions-' + (state.period === 'all' ? 'all' : state.period) + '.csv';
+    const name = 'naamu-transactions-' + (state.period === 'all' ? 'all' : state.period) + '.csv';
     const n = T.exportCSV(ctx, name);
     flash('Exported ' + N.plural(n, 'transaction') + ' to ' + name + '.');
   }
@@ -630,7 +630,7 @@
   function toggleTheme() {
     const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
-    N.storage.set('namu-theme', next);
+    N.storage.set('naamu-theme', next);
     syncThemeButton();
   }
 

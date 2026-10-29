@@ -1,21 +1,21 @@
-# Namu — internal contract
+# Naamu — internal contract
 
 Local, private, deterministic (no LLMs, no network calls). Flask on `127.0.0.1:8765`,
-SQLite at `data/namu.db`, original PDFs kept at `data/uploads/<sha256>.pdf`.
+SQLite at `data/naamu.db`, original PDFs kept at `data/uploads/<sha256>.pdf`.
 
 ```
-namu/models.py        shared dataclasses (ParsedStatement, ParsedTxn, Check)  — owner: lead
-namu/parsers/         PDF -> list[ParsedStatement]                            — owner: parsers
-namu/enrich.py        merchant names, categories, kinds, transfers, recurring — owner: backend
-namu/db.py, ingest.py, app.py                                                  — owner: backend
+naamu/models.py        shared dataclasses (ParsedStatement, ParsedTxn, Check)  — owner: lead
+naamu/parsers/         PDF -> list[ParsedStatement]                            — owner: parsers
+naamu/enrich.py        merchant names, categories, kinds, transfers, recurring — owner: backend
+naamu/db.py, ingest.py, app.py                                                  — owner: backend
 static/               single-page dashboard (vanilla JS + inline SVG)          — owner: frontend
 ```
 
 ## Parser entry point
 
 ```python
-from namu.parsers import parse_pdf          # parse_pdf(path: str | Path) -> list[ParsedStatement]
-                                            # raises namu.models.UnsupportedStatement
+from naamu.parsers import parse_pdf          # parse_pdf(path: str | Path) -> list[ParsedStatement]
+                                            # raises naamu.models.UnsupportedStatement
 ```
 
 ## Transaction semantics

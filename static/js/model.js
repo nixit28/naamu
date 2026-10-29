@@ -1,11 +1,11 @@
-/* Namu — pure calculations over /api/data. Follows docs/CONTRACT.md:
+/* Naamu — pure calculations over /api/data. Follows docs/CONTRACT.md:
    money_in = Σ income; spent (money_out) = −Σ (expense + refund);
    saved = −Σ saving (net: put_in − taken_out, can be negative);
    left_in_checking = in − spent − saved (cash, not savings); savings_rate = saved / in.
    Transfers count toward none of them. */
 (function () {
   'use strict';
-  const N = window.Namu;
+  const N = window.Naamu;
   const M = (N.model = {});
 
   M.SPEND_KINDS = { expense: 1, refund: 1 };

@@ -1,6 +1,6 @@
 """Flask app: serves the dashboard (static/) and the JSON API from docs/CONTRACT.md.
 
-Run with ``python -m namu.app``; it binds to 127.0.0.1 only (never 0.0.0.0).
+Run with ``python -m naamu.app``; it binds to 127.0.0.1 only (never 0.0.0.0).
 """
 from __future__ import annotations
 
@@ -22,9 +22,9 @@ PORT = 8765
 MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 _LOCAL_HOSTS = {"127.0.0.1", "localhost", "::1", "[::1]"}
 
-_PLACEHOLDER = """<!doctype html><meta charset="utf-8"><title>Namu</title>
+_PLACEHOLDER = """<!doctype html><meta charset="utf-8"><title>Naamu</title>
 <body style="font-family:system-ui;margin:3rem;background:#fff;color:#111">
-<h1>Namu</h1><p>The dashboard (static/index.html) has not been built yet.
+<h1>Naamu</h1><p>The dashboard (static/index.html) has not been built yet.
 The API is available at <code>/api/data</code>.</p></body>"""
 
 
@@ -40,7 +40,7 @@ def create_app(data_dir: str | Path | None = None, parse: ParseFn | None = None,
     app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
     app.json.sort_keys = False
     lib = Library(data_dir, parse)
-    app.extensions["namu"] = lib
+    app.extensions["naamu"] = lib
     try:
         lib.recompute_all()          # apply current built-in rules to an existing DB
     except Exception:
@@ -144,9 +144,9 @@ def create_app(data_dir: str | Path | None = None, parse: ParseFn | None = None,
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
-    port = int(os.environ.get("NAMU_PORT", PORT))
+    port = int(os.environ.get("NAAMU_PORT", PORT))
     app = create_app()
-    print(f"Namu is running at http://{HOST}:{port}  (Ctrl+C to stop)", flush=True)
+    print(f"Naamu is running at http://{HOST}:{port}  (Ctrl+C to stop)", flush=True)
     app.run(host=HOST, port=port, debug=False, threaded=True, use_reloader=False)
 
 

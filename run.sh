@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Namu: one command to set up (first run only) and launch the local dashboard.
+# Naamu: one command to set up (first run only) and launch the local dashboard.
 #   ./run.sh                     -> http://127.0.0.1:8765
-#   NAMU_PORT=9000 ./run.sh      -> different port
-#   NAMU_DATA_DIR=/path ./run.sh -> keep the database + PDFs somewhere else
+#   NAAMU_PORT=9000 ./run.sh      -> different port
+#   NAAMU_DATA_DIR=/path ./run.sh -> keep the database + PDFs somewhere else
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -33,5 +33,5 @@ if ! "$VENV/bin/python" -c "import flask, pdfplumber" >/dev/null 2>&1; then
   fi
 fi
 
-echo "Starting Namu at http://127.0.0.1:${NAMU_PORT:-8765}  (local only, Ctrl+C to stop)"
-exec "$VENV/bin/python" -m namu.app
+echo "Starting Naamu at http://127.0.0.1:${NAAMU_PORT:-8765}  (local only, Ctrl+C to stop)"
+exec "$VENV/bin/python" -m naamu.app
