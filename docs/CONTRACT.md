@@ -1,7 +1,7 @@
 # Naamu — internal contract
 
-Local, private, deterministic (no LLMs, no network calls). Flask on `127.0.0.1:8765`,
-SQLite at `data/naamu.db`, original PDFs kept at `data/uploads/<sha256>.pdf`.
+Local, private, deterministic (no LLMs, no network calls). Flask on `127.0.0.1:8765`
+(`NAAMU_HOST=0.0.0.0` for the local network), SQLite at `data/naamu.db`, original PDFs kept at `data/uploads/<sha256>.pdf`.
 
 ```
 naamu/models.py        shared dataclasses (ParsedStatement, ParsedTxn, Check)  — owner: lead

@@ -9,7 +9,7 @@ shows what came in, what you spent, what you saved, and what was left in checkin
 *Screenshots use the built-in fictional demo household.*
 
 - **No AI, no cloud.** Every parser and rule is plain, deterministic code. The server
-  listens on `127.0.0.1` only and makes no network calls; the page loads no fonts,
+  listens on `127.0.0.1` only (unless you open it to your network) and makes no network calls; the page loads no fonts,
   scripts or charts from the internet.
 - **Every statement is verified.** Each parse is checked against the totals printed on the
   statement itself (purchases, payments, deposits, balances) and must match to the cent.
@@ -34,6 +34,12 @@ To look around first, open <http://127.0.0.1:8765/?mock> for the demo household
 
 Options: `NAAMU_PORT=9000 ./run.sh` uses another port; `NAAMU_DATA_DIR=/path ./run.sh`
 keeps the database and PDFs somewhere else.
+
+**On your phone:** `NAAMU_HOST=0.0.0.0 ./run.sh` also listens on your local network and
+prints the address to open (e.g. `http://192.168.1.50:8765`) on a phone on the same Wi-Fi.
+There is no password, so anyone on that network can see your dashboard; use it on a network
+you trust. If the page doesn't load, allow the port through the firewall
+(`sudo ufw allow 8765/tcp` on Ubuntu).
 
 ## What the dashboard shows
 
@@ -132,7 +138,8 @@ improved rules apply to data you've already uploaded.
 - `data/` holds everything Naamu stores: `data/naamu.db` (SQLite) and the original PDFs in
   `data/uploads/<sha256>.pdf`. Back it up to keep your history; delete it to wipe
   everything. It is git-ignored.
-- API requests from other websites, or with a non-local `Host` header, are refused.
+- API requests from other websites, or with a non-local `Host` header, are refused. With
+  `NAAMU_HOST` set, an IP-address `Host` (like `192.168.1.50:8765`) is also accepted.
 
 ## Development
 

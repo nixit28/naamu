@@ -1,11 +1,14 @@
 """Flask app: serves the dashboard (static/) and the JSON API from docs/CONTRACT.md.
 
-Run with ``python -m naamu.app``; it binds to 127.0.0.1 only (never 0.0.0.0).
+Run with ``python -m naamu.app``; it binds to 127.0.0.1 only unless ``NAAMU_HOST`` says
+otherwise (``NAAMU_HOST=0.0.0.0`` opens it to other devices on the local network).
 """
 from __future__ import annotations
 
+import ipaddress
 import logging
 import os
+import socket
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -34,8 +37,27 @@ def _hostname(netloc: str) -> str:
     return (urlsplit(f"//{netloc}").hostname or "").lower()
 
 
+def _is_ip(hostname: str) -> bool:
+    try:
+        ipaddress.ip_address(hostname)
+    except ValueError:
+        return False
+    return True
+
+
+def _lan_address() -> str | None:
+    """This machine's address on the local network. Connecting a UDP socket only picks a
+    route; no packet is sent."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("10.254.254.254", 1))
+            return s.getsockname()[0]
+    except OSError:
+        return None
+
+
 def create_app(data_dir: str | Path | None = None, parse: ParseFn | None = None,
-               static_dir: str | Path | None = None) -> Flask:
+               static_dir: str | Path | None = None, lan: bool = False) -> Flask:
     app = Flask(__name__, static_folder=None)
     app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
     app.json.sort_keys = False
@@ -48,15 +70,19 @@ def create_app(data_dir: str | Path | None = None, parse: ParseFn | None = None,
     static_root = Path(static_dir) if static_dir else ROOT / "static"
 
     # -- local-only guard: blocks DNS-rebinding and cross-site requests to the API -------
+    # In LAN mode the Host may also be an IP address (DNS rebinding always arrives with a
+    # hostname), and a write must come from the dashboard's own origin.
     @app.before_request
     def _guard():
         if not request.path.startswith("/api/"):
             return None
-        if _hostname(request.host) not in _LOCAL_HOSTS:
+        host = _hostname(request.host)
+        if host not in _LOCAL_HOSTS and not (lan and _is_ip(host)):
             return jsonify(error="Forbidden host"), 403
         origin = request.headers.get("Origin")
         if origin and request.method not in ("GET", "HEAD", "OPTIONS"):
-            if _hostname(urlsplit(origin).netloc) not in _LOCAL_HOSTS:
+            netloc = urlsplit(origin).netloc
+            if not (_hostname(netloc) in _LOCAL_HOSTS or (lan and netloc.lower() == request.host.lower())):
                 return jsonify(error="Cross-origin request refused"), 403
         return None
 
@@ -145,9 +171,16 @@ def create_app(data_dir: str | Path | None = None, parse: ParseFn | None = None,
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     port = int(os.environ.get("NAAMU_PORT", PORT))
-    app = create_app()
-    print(f"Naamu is running at http://{HOST}:{port}  (Ctrl+C to stop)", flush=True)
-    app.run(host=HOST, port=port, debug=False, threaded=True, use_reloader=False)
+    host = os.environ.get("NAAMU_HOST", HOST)
+    lan = host.lower() not in _LOCAL_HOSTS
+    app = create_app(lan=lan)
+    print(f"Naamu is running at http://127.0.0.1:{port}  (Ctrl+C to stop)", flush=True)
+    if lan:
+        addr = host if host not in ("0.0.0.0", "::") else _lan_address()
+        if addr:
+            print(f"  On your phone (same Wi-Fi): http://{addr}:{port}", flush=True)
+        print("  Anyone on this network can open the dashboard; there is no password.", flush=True)
+    app.run(host=host, port=port, debug=False, threaded=True, use_reloader=False)
 
 
 if __name__ == "__main__":

@@ -232,6 +232,44 @@ def test_local_only_guard(client):
     r = client.post("/api/reparse", headers={"Origin": "http://127.0.0.1:8765"})
     assert r.status_code == 200
     assert client.get("/api/data", headers={"Host": "127.0.0.1:8765"}).status_code == 200
+    assert client.get("/api/data", headers={"Host": "192.168.1.50:8765"}).status_code == 403
+
+
+def test_lan_mode_guard(tmp_path):
+    lan = create_app(data_dir=tmp_path / "data", parse=fake_parse, lan=True).test_client()
+    ip = {"Host": "192.168.1.50:8765"}
+    assert lan.get("/api/data", headers=ip).status_code == 200
+    assert lan.get("/api/data", headers={"Host": "[fe80::1]:8765"}).status_code == 200
+    assert lan.get("/api/data", headers={"Host": "127.0.0.1:8765"}).status_code == 200
+    # a hostname is still refused: DNS rebinding always arrives with one
+    assert lan.get("/api/data", headers={"Host": "evil.example.com"}).status_code == 403
+    # writes must come from the dashboard's own origin
+    r = lan.post("/api/reparse", headers={**ip, "Origin": "http://192.168.1.50:8765"})
+    assert r.status_code == 200
+    r = lan.post("/api/reparse", headers={**ip, "Origin": "https://evil.example.com"})
+    assert r.status_code == 403
+    r = lan.post("/api/reparse", headers={**ip, "Origin": "http://192.168.1.99:8765"})
+    assert r.status_code == 403
+
+
+@pytest.mark.parametrize("env, host, lan", [
+    ({}, "127.0.0.1", False),
+    ({"NAAMU_HOST": "0.0.0.0"}, "0.0.0.0", True),
+    ({"NAAMU_HOST": "localhost"}, "localhost", False),
+])
+def test_main_host_from_env(monkeypatch, env, host, lan):
+    monkeypatch.delenv("NAAMU_HOST", raising=False)
+    for k, v in env.items():
+        monkeypatch.setenv(k, v)
+    seen = {}
+
+    class FakeApp:
+        def run(self, **kw):
+            seen["run"] = kw
+
+    monkeypatch.setattr(app_module, "create_app", lambda **kw: seen.update(app=kw) or FakeApp())
+    app_module.main()
+    assert seen["run"]["host"] == host and seen["app"] == {"lan": lan}
 
 
 def test_startup_recomputes_existing_db(tmp_path):
