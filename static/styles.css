@@ -290,8 +290,10 @@ main { padding-top: 20px; outline: none; }
 main.is-refreshing .dashboard { opacity: .55; }
 .grid { display: grid; gap: 18px; }
 .grid--flow { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
-.grid--2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
-.stack { display: grid; gap: 18px; min-width: 0; }
+.grid--2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+/* Columns end flush: the last card in the shorter column takes up the slack. */
+.stack { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.stack > :last-child { flex: 1 0 auto; }
 .card {
   scroll-margin-top: 64px;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
@@ -465,6 +467,7 @@ main.is-refreshing .dashboard { opacity: .55; }
 .cat-row:hover .hit, .cat-row.is-hot .hit { fill: var(--wash); }
 .cat-row:focus-visible .hit { fill: var(--wash); stroke: var(--focus); stroke-width: 2; }
 .cat-label { fill: var(--ink-2); font-size: 13px; }
+.cat-meta { fill: var(--ink-3); font-size: 11px; }
 .cat-row.is-dim .m-out { opacity: .32; }
 .cf-month.is-dim .m-save, .cf-month.is-dim .m-save-from { opacity: .3; }
 .cat-row.is-selected .cat-label { fill: var(--ink); font-weight: 600; }

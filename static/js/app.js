@@ -286,6 +286,22 @@
       }
     });
 
+    safe('chart-cards', () => {
+      // spending by card (and checking, so the bars add up to Spent)
+      const host = el('chart-cards');
+      const rows = M.accountRows(ix, sel.txF);
+      if (!rows.length) host.replaceChildren(S.emptyBlock('No spending in this period', 'Try a different month or include more accounts.'));
+      else if (view('cards') === 'table') {
+        host.replaceChildren(C.table('Spending by card', [{ label: 'Card or account' }, { label: 'Holder' }, { label: 'Spent', num: 1 }, { label: 'Share', num: 1 }, { label: 'Purchases', num: 1 }, { label: 'Top category' }],
+          rows.map((r) => [N.shortAccount(r.acct), (r.acct && N.personName(r.acct.holder)) || '—', N.money(r.spend), N.pct(r.share), String(r.count), r.top.length ? r.top[0][0] : '—'])));
+      } else {
+        host.replaceChildren();
+        const plot = h('div', { class: 'chart__plot' });
+        host.appendChild(plot);
+        C.accountBars(plot, rows, { selected: state.table.acct ? Number(state.table.acct) : null, onSelect: (r) => filterAccount(r.id) });
+      }
+    });
+
     safe('chart-calendar', () => {
       // calendar
       const cal = el('chart-calendar');
@@ -405,6 +421,12 @@
     render();
     if (state.table.merchant) scrollToTable('chip:merchant');
   }
+  function filterAccount(id) {
+    state.table.acct = state.table.acct === String(id) ? '' : String(id);
+    state.table.page = 0;
+    render();
+    if (state.table.acct) scrollToTable('chip:acct');
+  }
   function filterDate(iso) {
     state.table.date = state.table.date === iso ? null : iso;
     state.table.page = 0;
@@ -420,13 +442,13 @@
   }
   const api = {
     pickFiles,
-    filterCategory, filterMerchant, filterDate,
+    filterCategory, filterMerchant, filterDate, filterAccount,
     setTableFilter(key, value) {
       const f = state.table;
       if (key === 'cat') f.cats = value ? { names: new Set([value]), label: value } : null;
       else f[key] = value;
       f.page = 0;
-      if (key === 'cat') render(); else renderTableOnly();
+      if (key === 'cat' || key === 'acct') render(); else renderTableOnly();
     },
     setSearch(v) {
       state.table.search = v;
@@ -446,7 +468,7 @@
     },
     clearTableFilter(key) {
       const f = state.table;
-      const charts = key === 'cats' || key === 'merchant' || key === 'date' || key === 'months' || key === 'all';
+      const charts = key === 'cats' || key === 'merchant' || key === 'date' || key === 'months' || key === 'acct' || key === 'all';
       if (key === 'all') Object.assign(f, { cats: null, merchant: null, date: null, months: null, search: '', acct: '', kind: '' });
       else if (key === 'cats') f.cats = null;
       else if (key === 'search') f.search = '';

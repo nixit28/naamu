@@ -355,6 +355,52 @@
     N.clear(el).appendChild(svg);
   };
 
+  // ------------------------------------------------------------ account bars
+  /** rows from N.model.accountRows; opts: { selected: account id, onSelect(row) }.
+      Two-line label: the card's name, then its kind and holder. */
+  C.accountBars = function (el, rows, opts) {
+    const o = opts || {};
+    const W = Math.max(260, el.clientWidth);
+    const narrow = W < 460;
+    const rowH = 44, barH = 12;
+    const labW = narrow ? 118 : 150;
+    const valW = narrow ? 92 : 112;
+    const H = rows.length * rowH + 4;
+    const max = Math.max(...rows.map((r) => r.spend), 1);
+    const x0 = labW + 8, xMax = W - valW;
+    const svg = svgRoot(W, H, 'Spending by card and account, ' + rows.length + ' accounts, largest first. Table view available.', true);
+    const anySel = o.selected != null && rows.some((r) => r.id === o.selected);
+    rows.forEach((r, i) => {
+      const yy = i * rowH;
+      const a = r.acct;
+      const sel = anySel && r.id === o.selected;
+      const holder = a && N.personName(a.holder);
+      const kind = !a ? '' : a.type === 'credit' ? 'Credit card' : a.type === 'checking' ? 'Debit & bills' : a.type === 'savings' ? 'Savings' : a.type;
+      const meta = [kind, holder && holder.split(' ')[0]].filter(Boolean).join(' · ');
+      const g = s('g', { class: 'cat-row' + (anySel && !sel ? ' is-dim' : '') + (sel ? ' is-selected' : ''), role: 'button', tabindex: '0',
+        'aria-pressed': sel ? 'true' : 'false',
+        'aria-label': N.shortAccount(a) + (holder ? ', ' + holder : '') + ': ' + N.money(r.spend) + ', ' + N.pct(r.share) + ' of spending. Select to list its transactions.' });
+      g.appendChild(s('rect', { class: 'hit', x: 0, y: yy + 1, width: W, height: rowH - 2, rx: 6 }));
+      g.appendChild(s('text', { class: 'cat-label', x: labW, y: yy + rowH / 2 - 1, 'text-anchor': 'end', text: N.fitText(N.shortAccount(a), labW - 4, 13, 400) }));
+      g.appendChild(s('text', { class: 'cat-meta', x: labW, y: yy + rowH / 2 + 13, 'text-anchor': 'end', text: N.fitText(meta, labW - 4, 11, 400) }));
+      const x1 = x0 + Math.max(2, ((xMax - x0) * r.spend) / max);
+      g.appendChild(s('path', { class: 'm-out', d: barPath(x0, x1, yy + (rowH - barH) / 2, barH) }));
+      g.appendChild(s('text', { class: 'value-label', x: x1 + 8, y: yy + rowH / 2 + 4.5 },
+        N.money(r.spend, { cents: false }), s('tspan', { class: 'value-label__muted', text: '  ' + N.pct(r.share) })));
+      g._tip = {
+        title: a ? a.label : N.shortAccount(a),
+        rows: [
+          { value: N.money(r.spend), label: N.pct(r.share) + ' of spending', color: 'var(--out)' },
+          { value: N.plural(r.count, 'purchase'), label: r.refunds > 0 ? 'less ' + N.money(r.refunds) + ' refunded' : '' },
+        ].concat(r.top.slice(0, 3).map(([name, v]) => ({ value: N.money(v), label: name }))),
+        note: (holder ? holder + '. ' : '') + 'Select to list its transactions.',
+      };
+      if (o.onSelect) activate(g, () => o.onSelect(r));
+      svg.appendChild(g);
+    });
+    N.clear(el).appendChild(svg);
+  };
+
   // ------------------------------------------------------------ diverging change bars
   /** rows: [{name, cur, prev, diff, other}] — change per category, this month vs last.
       Diverging: less spending to the left (cool pole), more to the right (warm pole),

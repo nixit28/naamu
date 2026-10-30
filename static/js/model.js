@@ -221,6 +221,28 @@
     return rows;
   };
 
+  /** Spending per account, net of refunds: each card, plus checking (debit & bills). */
+  M.accountRows = function (ix, txns) {
+    const m = new Map();
+    for (const t of txns) {
+      if (!M.SPEND_KINDS[t.kind]) continue;
+      const r = m.get(t.account_id) || { id: t.account_id, acct: ix.acctById.get(t.account_id), spend: 0, count: 0, refunds: 0, cats: new Map() };
+      r.spend -= t.amount;
+      if (t.kind === 'expense') r.count++;
+      else r.refunds += t.amount;
+      r.cats.set(t.category, (r.cats.get(t.category) || 0) - t.amount);
+      m.set(t.account_id, r);
+    }
+    const rows = Array.from(m.values()).filter((r) => r.spend > 0.005);
+    rows.sort((a, b) => b.spend - a.spend);
+    const total = N.sum(rows, (r) => r.spend);
+    rows.forEach((r) => {
+      r.share = total > 0 ? r.spend / total : 0;
+      r.top = Array.from(r.cats.entries()).filter((e) => e[1] > 0.005).sort((a, b) => b[1] - a[1]);
+    });
+    return rows;
+  };
+
   M.merchantRows = function (txns) {
     const m = new Map();
     for (const t of txns) {
